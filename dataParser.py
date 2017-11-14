@@ -1,10 +1,11 @@
-#@@---------------------------@@
+# @@---------------------------@@
 #  Author: Chamil Jayasundara
 #  Date: 8/15/16
 #  Description: Parsing the data file
-#@@---------------------------@@
+# @@---------------------------@@
 
 from collections import OrderedDict
+
 
 class DataSet:
     def __init__(self):
@@ -22,12 +23,12 @@ def parsefile(data_file):
 
     with open(data_file, 'r') as file:
         for i, line in enumerate(file):
-            if i==1:
+            if i == 1:
                 attributes = line.split()
             elif i >= 3:
-               data.append(line.split())
+                data.append(line.split())
 
-    return attributes,data
+    return attributes, data
 
 
 def crete_data_set(path_to_data_file):

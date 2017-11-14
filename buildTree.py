@@ -1,8 +1,8 @@
-#@@---------------------------@@
+# @@---------------------------@@
 #  Author: Chamil Jayasundara
 #  Date: 8/17/16
 #  Description: Building a decision tree ground up
-#@@---------------------------@@
+# @@---------------------------@@
 
 from collections import defaultdict
 from dataParser import *
@@ -13,9 +13,9 @@ class DecisionNode:
     """Class for Decision Nodes"""
     def __init__(self, name):
         self.attribute_name = name
-        self.children={}
+        self.children = {}
 
-    #This is to enable dictionary like behaviour
+    # This is to enable dictionary like behaviour
     def __getitem__(self, key):
         return self.children[key]
 
@@ -23,14 +23,15 @@ class DecisionNode:
 class Tree:
     """Class for the entire tree"""
     def __init__(self, root):
-        self.root = root # Should be a decision node object
+        self.root = root  # Should be a decision node object
 
     def tree_traverse(self, set_of_attributes):
         #  set_of_attributes = {attribute:value}
 
         def traverse(node):
 
-            next_node = node[set_of_attributes[node.attribute_name]]  # this dictionary like behaviour is enabled, see class def
+            # this dictionary like behaviour is enabled, see class def
+            next_node = node[set_of_attributes[node.attribute_name]]
 
             if type(next_node) is DecisionNode:
                 return traverse(next_node)
@@ -42,7 +43,6 @@ class Tree:
     # do something here
 
 
-
 def entropy(frequncies):
     # frequencies = [5, 6, 8, ...]
 
@@ -52,7 +52,7 @@ def entropy(frequncies):
 
     for f in frequncies:
 
-        if f !=0:
+        if f != 0:
             prob = f / total
             entr -= (prob * log(prob, 2))
 
@@ -65,7 +65,8 @@ def entropy(frequncies):
 def get_information_gain(entropy_of_superset, size_of_superset, splitted_data):
 
     # set_of_subsets = [a:[1,2,4],b:[4,5,7]
-    inf_gain = entropy_of_superset  # Good to pass this one here as otherwise this will be recalculated a lot due to recursion
+    # Good to pass this one here as otherwise this will be recalculated a lot due to recursion
+    inf_gain = entropy_of_superset
 
     for key in splitted_data:
         frequencies = calculate_frequencies(splitted_data[key], 0).values()
@@ -95,10 +96,11 @@ def split_dataset(dataset, column):
     return splitted_data
 
 
-def build_tree(data_obj, entropy_of_data):
-    #This recuresively build the tree and return the root node
+def build_tree(data_obj):
 
+    # This recuresively build the tree and return the root node
     next_node, split_data = pick_next_node(data_obj)
+
     # index_of_attribute = list_of_attributes.index(next_node)
     decision_node = DecisionNode(next_node)
 
@@ -116,13 +118,12 @@ def build_tree(data_obj, entropy_of_data):
                 new_data_obj.data = split_data[attribute_value]
                 new_data_obj.attributes = dict(data_obj.attributes)
                 del new_data_obj.attributes[next_node]
-                decision_node.children[attribute_value] = build_tree(new_data_obj, entropy_of_subset)
+                decision_node.children[attribute_value] = build_tree(new_data_obj)
 
         else:
             frequencies = calculate_frequencies(data_obj.data, 0)
             decision_node.children[attribute_value] = max(frequencies, key=frequencies.get)
             # something somethon
-
 
     return decision_node
 
@@ -130,7 +131,7 @@ def build_tree(data_obj, entropy_of_data):
 def pick_next_node(data_obj):
     entropy_of_data = entropy(calculate_frequencies(data_obj.data, 0).values())
     next_node = ""
-    splitted_dataset={}
+    splitted_dataset = {}
     max_information_gain = -1  # information gain always +ve
 
     for attribute in data_obj.attributes:
@@ -145,16 +146,12 @@ def pick_next_node(data_obj):
 
 def main():
 
-    ##Training
+    # Training
     train_data = crete_data_set('data/noisy10_train.ssv')
 
-    ##This is the orginal entropy of dataset before we split
-    entropy_of_data = entropy(calculate_frequencies(train_data.data, 0).values())
+    my_tree = Tree(build_tree(train_data))
 
-    my_tree = Tree(build_tree(train_data, entropy_of_data))
-
-
-    ##Validation
+    # Validation
     validation_data = crete_data_set('data/noisy10_valid.ssv')
     keys = list(validation_data.attributes.keys())
     for d in validation_data.data:
